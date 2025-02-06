@@ -1,11 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>UBC Grade Viewer</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Tracker</title>
+    <link rel="stylesheet" href="popup.css">
     <script src="popup.js" defer></script>
 </head>
 <body>
-    <button id="extract">Extract Grades</button>
-    <pre id="output"></pre>
+    <div id="content">
+        <div class="header">
+            <h2>UBC Workday Grade Viewer</h2>
+        </div>
+
+        <div class="controls">
+            <div class="average-container">
+                <strong>Weighted Average: <span id="average-grade">0</span><span>%</span></strong>
+            </div>
+            <button id="extract">Extract Grades</button>
+        </div>
+        <div class="table-spacer">
+            <div class="table-container" id="table-container">
+                <!-- <table>
+                    <thead>
+                        <tr>
+                            <th>Course</th>
+                            <th>Grade</th>
+                            <th>Percentage</th>
+                            <th>Credits</th>
+                            <th>Exclude</th>
+                        </tr>
+                    </thead>
+                    <tbody id="course-table"></tbody>
+                </table> -->
+            </div>
+        </div>
+    </div>
 </body>
 </html>
