@@ -3,8 +3,7 @@
   "name": "UBC Workday Grade Viewer",
   "description": "View grades across entire academic history.",
   "version": "1.0",
-  "permissions": ["scripting", "activeTab", "storage"],
-  "host_permissions": ["*://*myworkday.com/*"],
+  "permissions": ["scripting", "activeTab"],
   "background": {
     "service_worker": "background.js"
   },
@@ -14,7 +13,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://*myworkday.com/*"],
+      "matches": ["https://*.myworkday.com/*"],
       "js": ["content.js"],
       "run_at": "document_idle"
     }

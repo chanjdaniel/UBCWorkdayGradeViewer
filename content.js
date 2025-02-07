@@ -1,39 +1,3 @@
-// (function() {
-//     console.log("ran function");
-//     let table = document.querySelector('table[data-testid="table"]');
-//     if (!table) {
-//         console.warn("Table not found");
-//         return;
-//     }
-
-//     let tableData = [];
-
-//     // Extract headers
-//     let headers = [];
-//     table.querySelectorAll("thead th").forEach(th => {
-//         let headerText = th.querySelector("span")?.innerText.trim() || th.innerText.trim();
-//         headers.push(headerText);
-//     });
-
-//     // Extract rows
-//     let rows = table.querySelectorAll("tbody tr");
-//     rows.forEach(row => {
-//         let rowData = {};
-//         let cells = row.querySelectorAll("td");
-
-//         cells.forEach((cell, index) => {
-//             let cellText = cell.innerText.trim();
-//             rowData[headers[index]] = cellText;
-//         });
-
-//         tableData.push(rowData);
-//     });
-
-//     // Send data to the popup
-//     chrome.runtime.sendMessage({ tables: tableData });
-// })();
-
-
 (function() {
     let tables = document.querySelectorAll('table[data-testid="table"]'); // Select all tables
     if (!tables.length) {

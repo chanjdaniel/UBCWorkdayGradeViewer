@@ -7,18 +7,6 @@ document.getElementById("extract").addEventListener("click", () => {
     });
 });
 
-// Listen for messages from content.js
-// chrome.runtime.onMessage.addListener((message) => {
-//     displayContent = {};
-//     if (message.tables) {
-//         displayContent["tables"] = message.tables;
-//     }
-//     if (message.periods) {
-//         displayContent["periods"] = message.periods;
-//     }
-//     document.getElementById("output").textContent = JSON.stringify(displayContent, null, 2);
-// });
-
 chrome.runtime.onMessage.addListener((message) => {
 
     const periods = message.periods;
