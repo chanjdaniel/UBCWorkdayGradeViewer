@@ -207,3 +207,7 @@ button {
 .toggle-btn {
     width: 57.5px;
 }
+
+.toggle-row {
+    cursor: pointer;
+}

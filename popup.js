@@ -146,7 +146,8 @@ chrome.runtime.onMessage.addListener((message) => {
             const tableBody = document.createElement("tbody");
             courses.forEach((course, index) => {
                 const row = document.createElement("tr");
-                if (course.excluded) row.classList.add("excluded");
+                row.classList.add("toggle-row");
+                if (course.excluded) { row.classList.add("excluded") }
     
                 row.innerHTML = `
                     <td class="course-column">${course.course}</td>
@@ -159,6 +160,8 @@ chrome.runtime.onMessage.addListener((message) => {
                         </button>
                     </td>
                 `;
+                row.setAttribute("period-index", `${apIndex}`);
+                row.setAttribute("data-index", `${index}`);
                 tableBody.appendChild(row);
             });
             table.appendChild(tableBody);
@@ -166,10 +169,20 @@ chrome.runtime.onMessage.addListener((message) => {
             tableContainer.appendChild(container);
         });
 
-        document.querySelectorAll(".toggle-btn").forEach(button => {
+        // document.querySelectorAll(".toggle-btn").forEach(button => {
+        //     button.addEventListener("click", (event) => {
+        //         const periodIndex = event.target.getAttribute("period-index");
+        //         const index = event.target.getAttribute("data-index");
+        //         academicPeriods[periodIndex][index].excluded = !academicPeriods[periodIndex][index].excluded;
+        //         renderTables();
+        //     });
+        // });
+
+        document.querySelectorAll(".toggle-row").forEach(button => {
             button.addEventListener("click", (event) => {
-                const periodIndex = event.target.getAttribute("period-index");
-                const index = event.target.getAttribute("data-index");
+                const targetRow = event.target.closest(".toggle-row");
+                const periodIndex = targetRow.getAttribute("period-index");
+                const index = targetRow.getAttribute("data-index");
                 academicPeriods[periodIndex][index].excluded = !academicPeriods[periodIndex][index].excluded;
                 renderTables();
             });
