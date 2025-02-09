@@ -14,8 +14,6 @@ chrome.runtime.onMessage.addListener((message) => {
     const periods = message.periods;
     const tables = message.tables;
 
-    console.log(periods);
-
     const tableBody = document.getElementById("course-table");
     const tableContainer = document.getElementById("table-container");
     const avgGradeSpan = document.getElementById("average-grade");
@@ -181,9 +179,6 @@ chrome.runtime.onMessage.addListener((message) => {
             button.addEventListener("click", (event) => {
                 const index = event.target.getAttribute("data-index");
                 const isExclude = button.innerText.trim() == "Exclude";
-                console.log(button.innerText);
-                console.log(button.innerText.trim());
-                console.log(isExclude);
                 academicPeriods[index].forEach(obj => obj.excluded = isExclude);
                 renderTables();
             });

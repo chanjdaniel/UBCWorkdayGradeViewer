@@ -49,6 +49,17 @@ html, body {
     margin: 20px;
 }
 
+.warning-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    margin: 20px;
+    font-size: 24px;
+    width: 80%;
+}
+
 .right-controls {
     display: flex;
     flex-direction: column;
