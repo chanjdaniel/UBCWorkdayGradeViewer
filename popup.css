@@ -23,16 +23,71 @@ html, body {
 }
 
 .controls {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
     position: relative;
     background: white;
     padding: 20px;
     z-index: 10;
+    height: fit-content;
+}
+
+.left-controls {
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+}
+
+.right-controls {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    height: 100px;
+}
+
+.credits-input {
+    width: 30px;
+    text-align: center;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.included-scrollable {
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+    max-height: 100%;
+    gap: 10px;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    justify-content: right;
+    max-height: 100%;
+}
+
+.checkbox-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+    align-items: center;
 }
 
 .header h2 {
     text-align: center;
     margin: 0 auto;
     margin-top: 10px;
+}
+
+.exclude-title {
+    text-align: right;
+    font-size: 14px;
 }
 
 .table-container {
@@ -63,6 +118,9 @@ h2 {
 }
 
 .average-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
     margin-bottom: 10px;
     font-size: 16px;
 }
