@@ -1,9 +1,11 @@
-document.getElementById("extract").addEventListener("click", () => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        chrome.scripting.executeScript({
-            target: { tabId: tabs[0].id },
-            files: ["content.js"]
-        });
+document.addEventListener("DOMContentLoaded", () => {
+    chrome.storage.session.get(["activeTabId"], (data) => {
+        if (data.activeTabId) {
+            chrome.scripting.executeScript({
+                target: { tabId: data.activeTabId },
+                files: ["content.js"]
+            });
+        }
     });
 });
 
@@ -11,6 +13,16 @@ chrome.runtime.onMessage.addListener((message) => {
 
     const periods = message.periods;
     const tables = message.tables;
+
+    console.log(periods);
+
+    const tableBody = document.getElementById("course-table");
+    const tableContainer = document.getElementById("table-container");
+    const avgGradeSpan = document.getElementById("average-grade");
+    const creditsSpan = document.getElementById("included-credits");
+    const topAvgGradeSpan = document.getElementById("top-average-grade");
+    const nlaCheckbox = document.getElementById("nla-checkbox");
+    const creditsInput = document.getElementById('credits-input');
 
     let academicPeriods = [];
 
@@ -21,20 +33,17 @@ chrome.runtime.onMessage.addListener((message) => {
             let row = rows[j];
             if (row["Course"] != "") {
                 let course = { course: row["Course"], grade: row["Grade"], percentageGrade: Number(row["Percentage Grades"]) || 0, credits: Number(row["Credits"]) || 0, excluded: false };
+                const letterGrades = new Set(['A','B','C','D','F']);
+                if (nlaCheckbox.checked && course.grade) {
+                    if (course.grade.length > 0 && !letterGrades.has(course.grade[0])) {
+                        course.excluded = true;
+                    }
+                }
                 courses.push(course);
             }
         }
         academicPeriods.push(courses);
     }
-
-    const tableBody = document.getElementById("course-table");
-
-    const tableContainer = document.getElementById("table-container");
-    const avgGradeSpan = document.getElementById("average-grade");
-    const creditsSpan = document.getElementById("included-credits");
-    const topAvgGradeSpan = document.getElementById("top-average-grade");
-    const nlaCheckbox = document.getElementById("nla-checkbox");
-    const creditsInput = document.getElementById('credits-input');
 
     nlaCheckbox.addEventListener("click", () => {
         const letterGrades = new Set(['A','B','C','D','F']);
@@ -104,11 +113,9 @@ chrome.runtime.onMessage.addListener((message) => {
         avgGradeSpan.innerText = avg;
         creditsSpan.innerText = sumCredits;
 
-        const topAvg = sumTopCredits ? (sumTopWeightedGrades / sumTopCredits).toFixed(2) : "N/A";
+        const topAvg = sumTopCredits ? (sumTopWeightedGrades / sumTopCredits).toFixed(2) : "0";
         topAvgGradeSpan.innerText = topAvg;
         creditsInput.value = sumTopCredits;
-        console.log(sumTopWeightedGrades);
-        console.log(sumTopCredits);
     }
 
     function renderTables() {
@@ -120,7 +127,7 @@ chrome.runtime.onMessage.addListener((message) => {
             title.innerHTML = `
             <h3>${periods[apIndex]}</h3>
             <button class="period-toggle-btn" data-index="${apIndex}">
-                ${courses.every(obj => obj.excluded === false) ? "Include" : "Exclude"}
+                ${!courses.every(obj => obj.excluded === true) ? "Exclude" : "Include"}
             </button>
             `;
             title.className = "table-title";
@@ -140,13 +147,6 @@ chrome.runtime.onMessage.addListener((message) => {
 
             const tableBody = document.createElement("tbody");
             courses.forEach((course, index) => {
-                const letterGrades = new Set(['A','B','C','D','F']);
-                if (nlaCheckbox.checked && course.grade) {
-                    if (course.grade.length > 0 && !letterGrades.has(course.grade[0])) {
-                        course.excluded = true;
-                    }
-                }
-
                 const row = document.createElement("tr");
                 if (course.excluded) row.classList.add("excluded");
     
@@ -180,7 +180,11 @@ chrome.runtime.onMessage.addListener((message) => {
         document.querySelectorAll(".period-toggle-btn").forEach(button => {
             button.addEventListener("click", (event) => {
                 const index = event.target.getAttribute("data-index");
-                academicPeriods[index].forEach(obj => obj.excluded = !obj.excluded);
+                const isExclude = button.innerText.trim() == "Exclude";
+                console.log(button.innerText);
+                console.log(button.innerText.trim());
+                console.log(isExclude);
+                academicPeriods[index].forEach(obj => obj.excluded = isExclude);
                 renderTables();
             });
         });
