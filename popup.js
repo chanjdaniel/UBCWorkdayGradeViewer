@@ -14,25 +14,32 @@ chrome.runtime.onMessage.addListener((message) => {
     const periods = message.periods;
     const tables = message.tables;
 
-    const tableBody = document.getElementById("course-table");
+    // const tableBody = document.getElementById("course-table");
     const tableContainer = document.getElementById("table-container");
     const avgGradeSpan = document.getElementById("average-grade");
     const creditsSpan = document.getElementById("included-credits");
     const topAvgGradeSpan = document.getElementById("top-average-grade");
-    const nlaCheckbox = document.getElementById("nla-checkbox");
+    const nlgCheckbox = document.getElementById("nla-checkbox");
     const creditsInput = document.getElementById('credits-input');
 
     let academicPeriods = [];
+    let nlgExclusion = true;
+    let courseLevelExclusion = {};
 
     for (let i = 0; i < tables.length; i++) {
         let courses = [];
         let rows = tables[i].rows;
+        let skip = false;
         for (let j = 0; j < rows.length; j++) {
             let row = rows[j];
+            if (!("Course" in row)) {
+                skip = true;
+                break;
+            }
             if (row["Course"] != "") {
                 let course = { course: row["Course"], grade: row["Grade"], percentageGrade: Number(row["Percentage Grades"]) || 0, credits: Number(row["Credits"]) || 0, excluded: false };
                 const letterGrades = new Set(['A','B','C','D','F']);
-                if (nlaCheckbox.checked && course.grade) {
+                if (nlgCheckbox.checked && course.grade) {
                     if (course.grade.length > 0 && !letterGrades.has(course.grade[0])) {
                         course.excluded = true;
                     }
@@ -40,44 +47,51 @@ chrome.runtime.onMessage.addListener((message) => {
                 courses.push(course);
             }
         }
-        academicPeriods.push(courses);
+        if (!skip) {
+            academicPeriods.push(courses);
+        }
     }
 
-    nlaCheckbox.addEventListener("click", () => {
-        const letterGrades = new Set(['A','B','C','D','F']);
-        for (let i = 0; i < academicPeriods.length; i++) {
-            const courses = academicPeriods[i];
+    nlgCheckbox.addEventListener("click", () => {
+        // const letterGrades = new Set(['A','B','C','D','F']);
+        // for (let i = 0; i < academicPeriods.length; i++) {
+        //     const courses = academicPeriods[i];
 
-            for (let j = 0; j < courses.length; j++) {
-                let course = courses[j];
-                if (course.grade && course.grade.length > 0) {
-                    if (!letterGrades.has(course.grade[0])) {
-                        course.excluded = nlaCheckbox.checked;
-                    }
-                }
-            }
-        }
-        renderTables();
+        //     for (let j = 0; j < courses.length; j++) {
+        //         let course = courses[j];
+        //         if (course.grade && course.grade.length > 0) {
+        //             if (!letterGrades.has(course.grade[0])) {
+        //                 course.excluded = nlgCheckbox.checked;
+        //             }
+        //         }
+        //     }
+        // }
+        nlgExclusion = nlgCheckbox.checked;
+        updateExclusions();
     })
 
     document.querySelectorAll(".course-level-checkbox").forEach(button => {
+        const courseLevel = button.parentElement.textContent.trim();
+        courseLevelExclusion[courseLevel] = button.checked;
+
         button.addEventListener("click", (event) => {
             const level = event.target.getAttribute("data");
-            for (let i = 0; i < academicPeriods.length; i++) {
-                const courses = academicPeriods[i];
+            // for (let i = 0; i < academicPeriods.length; i++) {
+            //     const courses = academicPeriods[i];
     
-                for (let j = 0; j < courses.length; j++) {
-                    let course = courses[j];
-                    const courseName = course.course;
-                    const courseNameStrings = courseName.split(" ");
-                    const courseCode = courseNameStrings[1];
-                    const courseLevel = courseCode[0];
-                    if (courseLevel == level) {
-                        course.excluded = button.checked;
-                    }
-                }
-            }
-            renderTables();
+            //     for (let j = 0; j < courses.length; j++) {
+            //         let course = courses[j];
+            //         const courseName = course.course;
+            //         const courseNameStrings = courseName.split(" ");
+            //         const courseCode = courseNameStrings[1];
+            //         const courseLevel = courseCode[0];
+            //         if (courseLevel == level) {
+            //             course.excluded = button.checked;
+            //         }
+            //     }
+            // }
+            courseLevelExclusion[level] = button.checked;
+            updateExclusions();
         });
     });
 
@@ -85,6 +99,37 @@ chrome.runtime.onMessage.addListener((message) => {
         calculateAverage();
         renderTables();
     })
+
+    function updateExclusions() {
+        for (let i = 0; i < academicPeriods.length; i++) {
+            const courses = academicPeriods[i];
+
+            for (let j = 0; j < courses.length; j++) {
+                let course = courses[j];
+                const courseName = course.course;
+                const courseNameStrings = courseName.split(" ");
+                const courseCode = courseNameStrings[1];
+                const courseLevel = courseCode[0];
+
+                let excluded = false;
+                for (const [key, value] of Object.entries(courseLevelExclusion)) {
+                    if (courseLevel == key) {
+                        excluded = excluded || value;
+                    }
+                }
+
+                const letterGrades = new Set(['A','B','C','D','F']);
+                if (course.grade && course.grade.length > 0) {
+                    if (!letterGrades.has(course.grade[0])) {
+                        excluded = excluded || nlgExclusion;
+                    }
+                }
+
+                course.excluded = excluded;
+            }
+        }
+        renderTables();
+    }
 
     function calculateAverage() {
         const courses = academicPeriods.flat(1);
